@@ -298,3 +298,11 @@ header {
   cursor: pointer;
 }
 .ppad.on { transform: translateY(2px); box-shadow: none; color: var(--amber); border-color: var(--amber); }
+
+/* the SQ-80 theme: the page takes the screen's electric blue */
+body.sq80 { --amber: #4f9bff; --green: #7ec0ff; --red: #d7ebff; --dim: #3b6cb8; --text: #9cc8ff; --key-edge: #1f3d73; --panel: #070d1c; }
+body.sq80 .btn.on, body.sq80 .btn:active, body.sq80 .btn.latched { background: #0d2247; }
+body.sq80 .btn.tab-active { color: #02060f; }
+body.sq80 .ptr, body.sq80 .dot { stroke: #4f9bff; fill: #4f9bff; }
+body.sq80 .ptr { fill: none; }
+body.sq80 .pad0, body.sq80 .pad1, body.sq80 .pad2, body.sq80 .pad3, body.sq80 .pad4, body.sq80 .pad5, body.sq80 .pad6, body.sq80 .pad7 { border-bottom-color: #3a78d8; }

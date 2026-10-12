@@ -13,6 +13,7 @@
   var VOICE_NAMES = ['KICK', 'SNARE', 'HAT', 'CLAP', 'CAN', 'TOM', 'NUT', 'SYN'];
   var STUTTER_NAMES = ['1/4', '1/8', '1/16', '1/32', 'REVERSE', 'GRAINS', 'SPIN ▼', 'SPIN ▲'];
   var AUTOSAVE_KEY = 'msq8-autosave';
+  var THEME_KEY = 'msq8-theme';
 
   function $(id) { return document.getElementById(id); }
 
@@ -52,11 +53,24 @@
       var v = new Uint8Array(x.memory.buffer, x.msq_web_version(), 16), s = '', k;
       for (k = 0; k < 16 && v[k]; ++k) s += String.fromCharCode(v[k]);
       $('ver').textContent = s;
+      applyTheme(storedTheme());
       restore();
     });
   }
 
   function mem() { return x.memory.buffer; }
+
+  // The screen's theme (0 default, 1 the SQ-80's blue LCD). The page around it takes the blue too.
+  function storedTheme() {
+    try { return +window.localStorage.getItem(THEME_KEY) || 0; } catch (e) { return 0; }
+  }
+
+  function applyTheme(t) {
+    var now = x.msq_web_theme(t);
+    document.body.classList.toggle('sq80', now === 1);
+    try { window.localStorage.setItem(THEME_KEY, String(now)); } catch (e) { /* ok */ }
+    return now;
+  }
 
   // ------------------------------------------------------------------ audio
   var phase = 0, primed = false, prevL = 0, prevR = 0, nextL = 0, nextR = 0;
@@ -554,6 +568,7 @@
     addScreen($('screen'));
     buildFixed(); buildPiano(); buildPads(); wireFiles();
     $('start').addEventListener('pointerdown', function (ev) { ev.preventDefault(); ensureAudio(); });
+    $('btnTheme').addEventListener('click', function () { if (x) applyTheme(storedTheme() + 1 >= 2 ? 0 : storedTheme() + 1); });
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
     window.addEventListener('blur', function () { if (x) releaseAll(); });
