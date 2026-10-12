@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0a0c16">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>MSQ-8 Synth</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><b>MSQ-8</b> <span id="ver"></span></div>
+    <div class="views" role="group" aria-label="View">
+      <button class="btn small" id="vPanel" type="button">PANEL</button>
+      <button class="btn small" id="vTouch" type="button">TOUCH</button>
+    </div>
+  </header>
+
+  <div id="touchview">
+    <div id="screenwrap">
+      <canvas id="screen" width="240" height="240"></canvas>
+      <button class="js-start" id="start" type="button">TAP TO START</button>
+    </div>
+
+    <nav id="pages" aria-label="Pages"></nav>
+
+    <section id="transport" aria-label="Transport"></section>
+
+    <section id="nav" aria-label="Navigation">
+      <div id="dpad"></div>
+      <div id="mods"></div>
+    </section>
+
+    <section id="shortcuts" aria-label="Raccourcis"></section>
+
+    <section id="keys" aria-label="Clavier">
+      <div id="pianobar"></div>
+      <div id="piano"></div>
+      <div id="pads"></div>
+    </section>
+  </div>
+
+  <div id="panelview" hidden>
+    <div id="stage"><div id="device"></div></div>
+  </div>
+
+  <section id="project" aria-label="Projet">
+    <div class="label">PROJECT <span id="autosaved">kept in this browser</span></div>
+    <div id="projbtns">
+      <button class="btn small" id="btnSave" type="button">SAVE FILE</button>
+      <button class="btn small" id="btnLoad" type="button">LOAD FILE</button>
+      <button class="btn small" id="btnCopy" type="button">COPY CODE</button>
+      <button class="btn small" id="btnPaste" type="button">PASTE CODE</button>
+      <button class="btn small" id="btnNew" type="button">NEW</button>
+    </div>
+    <div id="pastebox" hidden>
+      <textarea id="code" rows="4" spellcheck="false" autocomplete="off" placeholder="Paste a project code here"></textarea>
+      <button class="btn small" id="btnCodeLoad" type="button">LOAD THIS CODE</button>
+    </div>
+  </section>
+
+  <p class="hint">PC: Z S X D C V G B H N J M play, Q 2 W 3 E R 5 T… an octave up. Arrows, Space, F1-F11, Ctrl+S / Ctrl+O.</p>
+  <input type="file" id="file" accept=".msq8,.txt,application/octet-stream,text/plain" hidden>
+</div>
+<script src="panel.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
