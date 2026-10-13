@@ -612,10 +612,32 @@
     });
   }
 
+  // ------------------------------------------------------------------ full screen
+  // The page alone on the screen, without the browser's bars. Where the browser cannot (an iPhone's Safari), the button
+  // stays hidden: there, "Add to Home Screen" opens the page without bars.
+  function fullElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+
+  function wireFullscreen() {
+    var b = $('btnFull'), root = document.documentElement;
+    var enter = root.requestFullscreen || root.webkitRequestFullscreen, leave = document.exitFullscreen || document.webkitExitFullscreen;
+    if (!enter || !leave || document.fullscreenEnabled === false || document.webkitFullscreenEnabled === false) return;
+    b.hidden = false;
+    function shown() { var on = !!fullElement(); b.classList.toggle('tab-active', on); b.setAttribute('aria-pressed', on ? 'true' : 'false'); }
+    b.addEventListener('click', function () {
+      ensureAudio();
+      try {
+        var r = fullElement() ? leave.call(document) : enter.call(root, { navigationUI: 'hide' });
+        if (r && r.catch) r.catch(function () { /* refused: the page stays as it is */ });
+      } catch (e) { /* refused */ }
+    });
+    document.addEventListener('fullscreenchange', shown);
+    document.addEventListener('webkitfullscreenchange', shown);
+  }
+
   // ------------------------------------------------------------------ start
   function start() {
     addScreen($('screen'));
-    buildFixed(); buildPiano(); buildPads(); wireFiles(); wireDeck();
+    buildFixed(); buildPiano(); buildPads(); wireFiles(); wireDeck(); wireFullscreen();
     $('start').addEventListener('pointerdown', function (ev) { ev.preventDefault(); ensureAudio(); });
     $('btnTheme').addEventListener('click', function () { if (x) applyTheme(storedTheme() + 1 >= 2 ? 0 : storedTheme() + 1); });
     window.addEventListener('keydown', onKeyDown);

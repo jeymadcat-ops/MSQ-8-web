@@ -255,6 +255,7 @@ body.v-touch header { flex: none; padding: 0 0 6px; }
 
 /* ---------------------------------------------------------------- the front panel view */
 .views { display: flex; gap: 6px; }
+#btnFull { padding-inline: 10px; font-size: 16px; line-height: 1; }
 #panelview { margin-top: 4px; }
 #stage { position: relative; width: 100%; overflow: hidden; }
 #device {
