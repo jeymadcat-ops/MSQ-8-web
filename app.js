@@ -14,6 +14,8 @@
   var STUTTER_NAMES = ['1/4', '1/8', '1/16', '1/32', 'REVERSE', 'GRAINS', 'SPIN ▼', 'SPIN ▲'];
   var AUTOSAVE_KEY = 'msq8-autosave';
   var THEME_KEY = 'msq8-theme';
+  var DECK_KEY = 'msq8-deck';
+  var SHORT_PER_SET = 8;                                         // the shortcut buttons shown at once in the FUNC drawer
 
   function $(id) { return document.getElementById(id); }
 
@@ -21,6 +23,7 @@
   var ctx = null;                                                // the audio context
   var mods = { shift: false, ctrl: false };                      // the latched SHIFT / CTRL of the touch d-pad
   var shownPage = -1;
+  var shortIdx = {};                                             // page -> which set of shortcuts the FUNC drawer shows
 
   // ------------------------------------------------------------------ the engine
   function b64ToBytes(s) {
@@ -293,6 +296,46 @@
       press(b, function (r) { key(s[1], s[2], s[3], r); }, null, !!s[4]);
       box.appendChild(b);
     });
+    showShortcutSet(page);
+  }
+
+  // the FUNC drawer shows the page's shortcuts eight at a time, so it never scrolls; MORE turns the set
+  function showShortcutSet(page) {
+    var list = $('shortcuts').children, sets = Math.max(1, Math.ceil(list.length / SHORT_PER_SET)), idx = (shortIdx[page] || 0) % sets, i;
+    shortIdx[page] = idx;
+    for (i = 0; i < list.length; ++i) list[i].hidden = Math.floor(i / SHORT_PER_SET) !== idx;
+    var more = $('more');
+    more.textContent = 'MORE ▸  ' + (idx + 1) + '/' + sets;
+    more.hidden = sets < 2;
+  }
+
+  // ---- the drawer under the transport: one of NAV, FUNC, KEYS (PADS on the drum pages), FILE
+  function setDeck(name) {
+    var secs = $('deck').children, tabs = $('decktabs').children, i;
+    for (i = 0; i < secs.length; ++i) secs[i].hidden = secs[i].dataset.deck !== name;
+    for (i = 0; i < tabs.length; ++i) tabs[i].classList.toggle('tab-active', tabs[i].dataset.deck === name);
+    try { window.localStorage.setItem(DECK_KEY, name); } catch (e) { /* ok */ }
+  }
+
+  function wireDeck() {
+    var tabs = $('decktabs').children, saved = null, i;
+    for (i = 0; i < tabs.length; ++i) (function (t) {
+      t.addEventListener('click', function () { setDeck(t.dataset.deck); });
+    })(tabs[i]);
+    $('more').addEventListener('click', function () {
+      shortIdx[shownPage] = (shortIdx[shownPage] || 0) + 1;
+      showShortcutSet(shownPage);
+    });
+    try { saved = window.localStorage.getItem(DECK_KEY); } catch (e) { /* ok */ }
+    setDeck(/^(nav|func|keys|file)$/.test(saved) ? saved : 'nav');
+  }
+
+  // The view shown (touch or panel, panel.js switches): the touch view fills the screen, the project goes in its FILE drawer
+  function onView(v) {
+    var touch = v === 'touch', proj = $('project');
+    document.body.classList.toggle('v-touch', touch);
+    if (touch) $('deckfile').appendChild(proj);
+    else $('panelview').parentNode.insertBefore(proj, $('panelview').nextSibling);
   }
 
   // ---- the keyboard: two octaves and a C, from the keyboard octave of the engine (OCT ± moves it)
@@ -378,6 +421,7 @@
       $('pads').style.display = drums ? 'grid' : 'none';
       $('piano').style.display = drums ? 'none' : 'flex';
       $('pianobar').style.display = drums ? 'none' : 'grid';
+      $('tabKeys').textContent = drums ? 'PADS' : 'KEYS';
     }
     $('btnPlay').classList.toggle('live', !!playing);
     $('btnPlay').textContent = playing ? '■' : '▶';
@@ -566,7 +610,7 @@
   // ------------------------------------------------------------------ start
   function start() {
     addScreen($('screen'));
-    buildFixed(); buildPiano(); buildPads(); wireFiles();
+    buildFixed(); buildPiano(); buildPads(); wireFiles(); wireDeck();
     $('start').addEventListener('pointerdown', function (ev) { ev.preventDefault(); ensureAudio(); });
     $('btnTheme').addEventListener('click', function () { if (x) applyTheme(storedTheme() + 1 >= 2 ? 0 : storedTheme() + 1); });
     window.addEventListener('keydown', onKeyDown);
@@ -583,9 +627,9 @@
     window.msqApp = {                                                              // what the panel view (panel.js) builds on
       K: K, F: F, PAGE: PAGE, VOICE_NAMES: VOICE_NAMES, STUTTER_NAMES: STUTTER_NAMES, SHORT: SHORT, mods: mods, WHITE: WHITE, BLACK: BLACK,
       $: $, mk: mk, press: press, key: key, attachKey: attachKey, toggleMod: toggleMod, releaseMods: releaseMods, addScreen: addScreen,
-      exports: function () { return x; }, mem: mem, ensureAudio: ensureAudio, onFrame: function (fn) { frameHooks.push(fn); }
+      exports: function () { return x; }, mem: mem, ensureAudio: ensureAudio, onFrame: function (fn) { frameHooks.push(fn); }, onView: onView
     };
-    if (window.msqPanelInit) window.msqPanelInit(window.msqApp);
+    if (window.msqPanelInit) window.msqPanelInit(window.msqApp); else onView('touch');
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
