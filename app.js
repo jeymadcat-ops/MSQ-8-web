@@ -338,9 +338,11 @@
     else $('panelview').parentNode.insertBefore(proj, $('panelview').nextSibling);
   }
 
-  // ---- the keyboard: two octaves and a C, from the keyboard octave of the engine (OCT ± moves it)
+  // ---- the keyboard: two octaves and a C, from the keyboard octave of the engine (OCT ± moves it). The touch view
+  //      shows one octave and a C (the first keys of these lists), the front panel the whole of it.
   var WHITE = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24];
   var BLACK = { 1: 0, 3: 1, 6: 3, 8: 4, 10: 5, 13: 7, 15: 8, 18: 10, 20: 11, 22: 12 };   // semitone -> index of the white key before it
+  var TOUCH_TOP = 12;                                            // the touch keyboard: semitones 0 to 12
   var NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   var heldTouch = {};                                            // pointerId -> note
 
@@ -370,16 +372,18 @@
   }
 
   function buildPiano() {
-    var piano = $('piano'), w = 100 / WHITE.length;
-    WHITE.forEach(function (semi, i) {
+    var piano = $('piano'), whites = WHITE.filter(function (s) { return s <= TOUCH_TOP; }), w = 100 / whites.length;
+    whites.forEach(function (semi) {
       var k = mk('div', 'white', semi % 12 === 0 ? 'C' + (semi / 12) : '');
       k.dataset.semi = semi;
       attachKey(k, semi);
       piano.appendChild(k);
     });
     Object.keys(BLACK).forEach(function (s) {
-      var semi = +s, k = mk('div', 'black');
-      k.style.left = ((BLACK[s] + 1) * w - 2.7) + '%';
+      var semi = +s, k;
+      if (semi > TOUCH_TOP) return;
+      k = mk('div', 'black');
+      k.style.left = ((BLACK[s] + 1) * w - 3.75) + '%';
       attachKey(k, semi);
       piano.appendChild(k);
     });
