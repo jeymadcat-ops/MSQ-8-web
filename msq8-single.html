@@ -163,7 +163,11 @@ header {
   touch-action: none;
 }
 .black.on { background: var(--amber); }
-#piano .black { width: 7.5%; }
+/* the touch keyboard, like the FM-1's: pills, the black keys in a row above the white ones */
+#piano .white, #piano .black { position: absolute; border-radius: 999px; padding: 0; }
+#piano .white { top: 44%; bottom: 0; flex: none; padding-bottom: 6px; border-color: #9aa3bd; }
+#piano .black { top: 0; height: 38%; background: #2a3150; border-color: #4a5580; }
+#piano .black.on { background: var(--amber); }
 
 #pads, #stutters { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
 #pads { display: none; flex: 1; min-height: 0; grid-template-rows: 1fr 1fr auto 1fr 1fr; }
@@ -1111,11 +1115,13 @@ body.sq80 .pad0, body.sq80 .pad1, body.sq80 .pad2, body.sq80 .pad3, body.sq80 .p
     else $('panelview').parentNode.insertBefore(proj, $('panelview').nextSibling);
   }
 
-  // ---- the keyboard: two octaves and a C, from the keyboard octave of the engine (OCT ± moves it). The touch view
-  //      shows one octave and a C (the first keys of these lists), the front panel the whole of it.
+  // ---- the keyboard: two octaves and a C, from the keyboard octave of the engine (OCT ± moves it): the front panel's
   var WHITE = [0, 2, 4, 5, 7, 9, 11, 12, 14, 16, 17, 19, 21, 23, 24];
   var BLACK = { 1: 0, 3: 1, 6: 3, 8: 4, 10: 5, 13: 7, 15: 8, 18: 10, 20: 11, 22: 12 };   // semitone -> index of the white key before it
-  var TOUCH_TOP = 12;                                            // the touch keyboard: semitones 0 to 12
+  // The touch view's keyboard, drawn like the FM-1's: an octave from F to F, the white keys a row of pills and the black
+  // ones a row above them, three on the left and two on the right. [semitone, white keys before it]
+  var TOUCH_WHITE = [5, 7, 9, 11, 12, 14, 16, 17];
+  var TOUCH_BLACK = [[6, 1], [8, 2], [10, 3], [13, 5], [15, 6]];
   var NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
   var heldTouch = {};                                            // pointerId -> note
 
@@ -1145,19 +1151,18 @@ body.sq80 .pad0, body.sq80 .pad1, body.sq80 .pad2, body.sq80 .pad3, body.sq80 .p
   }
 
   function buildPiano() {
-    var piano = $('piano'), whites = WHITE.filter(function (s) { return s <= TOUCH_TOP; }), w = 100 / whites.length;
-    whites.forEach(function (semi) {
-      var k = mk('div', 'white', semi % 12 === 0 ? 'C' + (semi / 12) : '');
+    var piano = $('piano'), pitch = 100 / TOUCH_WHITE.length, kw = pitch * 0.82;
+    TOUCH_WHITE.forEach(function (semi, i) {
+      var k = mk('div', 'white', NOTE_NAMES[semi % 12]);
       k.dataset.semi = semi;
+      k.style.left = (i * pitch + (pitch - kw) / 2) + '%'; k.style.width = kw + '%';
       attachKey(k, semi);
       piano.appendChild(k);
     });
-    Object.keys(BLACK).forEach(function (s) {
-      var semi = +s, k;
-      if (semi > TOUCH_TOP) return;
-      k = mk('div', 'black');
-      k.style.left = ((BLACK[s] + 1) * w - 3.75) + '%';
-      attachKey(k, semi);
+    TOUCH_BLACK.forEach(function (b) {
+      var k = mk('div', 'black');
+      k.style.left = (b[1] * pitch - kw / 2) + '%'; k.style.width = kw + '%';
+      attachKey(k, b[0]);
       piano.appendChild(k);
     });
     var bar = $('pianobar');
@@ -1203,7 +1208,7 @@ body.sq80 .pad0, body.sq80 .pad1, body.sq80 .pad2, body.sq80 .pad3, body.sq80 .p
     $('btnPlay').classList.toggle('live', !!playing);
     $('btnPlay').textContent = playing ? '■' : '▶';
     $('btnRec').classList.toggle('rec', !!rec);
-    $('octlabel').textContent = 'KEYS FROM C' + x.msq_web_state(1);
+    $('octlabel').textContent = 'KEYS F' + x.msq_web_state(1) + ' TO F' + (x.msq_web_state(1) + 1);
   }
 
   // ------------------------------------------------------------------ the PC keyboard
