@@ -1,4 +1,4 @@
-/* The front panel of the MSQ-8, drawn as the device: the screen, MASTER and four knobs that change their job with the page,
+/* The front panel of the MSQ-80, drawn as the device: the screen, MASTER and four knobs that change their job with the page,
    transport and page buttons with their lights, eight function buttons whose legends follow the page, a d-pad and a DATA
    wheel, a keybed (the 8 pads and 8 stutters take its place on the drum pages). It sits on the engine's own commands, like
    the touch view: this file only draws the box and sends the same keys. app.js calls msqPanelInit when it starts. */
@@ -247,7 +247,7 @@
 
     // ---------------------------------------------------------------- the screen
     function buildScreen() {
-      legend('MSQ-8', 24, 14, 200).classList.add('logo');
+      legend('MSQ-80', 24, 14, 200).classList.add('logo');
       legend('SYNTHESIZER · SEQUENCER · RHYTHM NRV8', 24, 52, 330);
       var bez = mk('div', 'bezel');
       place(bez, 18, 80, 320, 320);

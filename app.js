@@ -1,4 +1,4 @@
-/* MSQ-8 on the web: the engine (WebAssembly, one instance, this thread), the audio (a ScriptProcessor pulling it), the
+/* MSQ-80 on the web: the engine (WebAssembly, one instance, this thread), the audio (a ScriptProcessor pulling it), the
    screen (a canvas), and the touch panel: pages, transport, a d-pad, shortcut buttons that follow the page, a
    keyboard and the drum pads. The commands are the engine's own keys: this page only sends them. */
 (function () {
